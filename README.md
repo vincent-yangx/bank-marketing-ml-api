@@ -422,23 +422,23 @@ Create a file named `sample_request.json` in the project root directory:
 
 ```json
 {
-  "age": 35,
-  "job": "management",
-  "marital": "married",
-  "education": "tertiary",
-  "default": "no",
-  "balance": 1200,
-  "housing": "yes",
-  "loan": "no",
-  "contact": "cellular",
-  "day_of_week": "mon",
-  "month": "may",
-  "duration": 180,
-  "campaign": 2,
-  "pdays": -1,
-  "previous": 0,
-  "poutcome": "unknown"
-}
+    "age": 35,
+    "job": "management",
+    "marital": "married",
+    "education": "tertiary",
+    "default": "no",
+    "balance": 1200,
+    "housing": "yes",
+    "loan": "no",
+    "contact": "cellular",
+    "day_of_week": 15,
+    "month": "may",
+    "duration": 180,
+    "campaign": 2,
+    "pdays": -1,
+    "previous": 0,
+    "poutcome": "unknown"
+  }
 ```
 
 ---
