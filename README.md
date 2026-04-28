@@ -589,3 +589,32 @@ Saved sklearn pipeline
 Prediction and probability output
 ```
 
+## PyTorch MLP Baseline
+
+I also implemented a PyTorch MLP baseline for the same binary classification task.
+
+The PyTorch pipeline includes:
+
+- Dataset and DataLoader
+- MLP model
+- BCEWithLogitsLoss
+- Adam optimizer
+- Training loop
+- Evaluation loop
+- Model checkpoint saving
+
+### PyTorch Results
+
+- Accuracy: 0.9109
+- Precision: 0.6556
+- Recall: 0.5019
+- F1 Score: 0.5685
+- ROC-AUC: 0.9308
+
+The model achieved a strong ROC-AUC, suggesting good ranking ability. However, the default threshold of 0.5 gives moderate recall, so future work can tune the classification threshold based on business goals.
+
+### Threshold Tuning
+
+The default threshold of 0.5 achieved an F1 score of 0.5685. After evaluating multiple decision thresholds, threshold = 0.30 achieved the best F1 score of 0.6135, with precision = 0.5429 and recall = 0.7051.
+
+This suggests that lowering the threshold improves recall and overall F1, which is useful in a marketing scenario where identifying more potential subscribers can be valuable.

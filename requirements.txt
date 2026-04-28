@@ -6,3 +6,5 @@ ucimlrepo
 fastapi
 uvicorn
 pydantic
+
+torch
