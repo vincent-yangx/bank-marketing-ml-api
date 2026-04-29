@@ -11,6 +11,25 @@ app = FastAPI(
     version = "1.0.0"
 )
 
+REQUIRED_FEATURES = [
+    "age",
+    "job",
+    "marital",
+    "education",
+    "default",
+    "balance",
+    "housing",
+    "loan",
+    "contact",
+    "day_of_week",
+    "month",
+    "duration",
+    "campaign",
+    "pdays",
+    "previous",
+    "poutcome",
+]
+
 class PredictionRequest(BaseModel):
     features: Dict[str, Any]
     
@@ -30,6 +49,18 @@ def health_check():
 
 @app.post("/predict")
 def predict(request: PredictionRequest):
+    missing_features = {
+        feature for feature in REQUIRED_FEATURES
+        if feature not in request.features
+    }
+
+    if missing_features:
+        raise HTTPException(
+            status_code = 400,
+            detail = f"Missing required features: {', '.join(missing_features)}"
+        )
+    
+
     try:
         result = predict_one(model, request.features)
         return result

@@ -548,31 +548,6 @@ curl.exe -X POST "http://127.0.0.1:8000/predict" -H "Content-Type: application/j
 ```
 
 Do not use plain `curl` in PowerShell.
-
----
-
-## Day 2 Completion Checklist
-
-Day 2 is complete if the following items are done:
-
-- [ ] `src/infer.py` created
-- [ ] `src/app.py` created
-- [ ] `requirements.txt` updated with FastAPI dependencies
-- [ ] FastAPI server starts successfully
-- [ ] `http://127.0.0.1:8000/docs` opens correctly
-- [ ] `/health` endpoint returns `status: ok`
-- [ ] `/predict` endpoint returns prediction and probability
-- [ ] `sample_request.json` created
-- [ ] README updated
-- [ ] Git commit completed
-
-Example Git commit:
-
-```bash
-git add .
-git commit -m "Add FastAPI inference endpoint"
-```
-
 ---
 
 ## Current Project Status
@@ -589,7 +564,7 @@ Saved sklearn pipeline
 Prediction and probability output
 ```
 
-## PyTorch MLP Baseline
+# Day 3: Build PyTorch MLP Baseline
 
 I also implemented a PyTorch MLP baseline for the same binary classification task.
 
@@ -618,3 +593,53 @@ The model achieved a strong ROC-AUC, suggesting good ranking ability. However, t
 The default threshold of 0.5 achieved an F1 score of 0.5685. After evaluating multiple decision thresholds, threshold = 0.30 achieved the best F1 score of 0.6135, with precision = 0.5429 and recall = 0.7051.
 
 This suggests that lowering the threshold improves recall and overall F1, which is useful in a marketing scenario where identifying more potential subscribers can be valuable.
+
+# Day 4: Build a Docker file
+
+## Testing
+
+Run the API tests:
+
+```bash
+pytest
+```
+
+The tests check whether the health endpoint and prediction endpoint work correctly.
+
+---
+
+## Run with Docker
+
+Before building the Docker image, make sure the trained sklearn model exists:
+
+```text
+models/bank_marketing_baseline.pkl
+```
+
+If it does not exist, run:
+
+```bash
+python src/train.py
+```
+
+Build the Docker image:
+
+```bash
+docker build -t bank-marketing-api .
+```
+
+Run the container:
+
+```bash
+docker run -p 8000:8000 bank-marketing-api
+```
+
+Open the FastAPI documentation:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The Docker command maps your local port `8000` to the container's port `8000`.
+
+

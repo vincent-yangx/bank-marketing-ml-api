@@ -8,3 +8,6 @@ uvicorn
 pydantic
 
 torch
+
+pytest
+httpx

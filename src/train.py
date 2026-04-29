@@ -18,7 +18,7 @@ from sklearn.metrics import (
     classification_report
 )
 
-from data_loader import load_bank_marketing_data
+from src.data_loader import load_bank_marketing_data
 
 def main():
     # load data
