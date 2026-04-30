@@ -173,32 +173,6 @@ The script should also save the trained model to:
 models/bank_marketing_baseline.pkl
 ```
 
----
-
-## Day 1 Completion Checklist
-
-Day 1 is complete if the following items are done:
-
-- [ ] Conda environment created
-- [ ] Project folder created
-- [ ] Project structure created
-- [ ] Dependencies installed
-- [ ] `src/data_loader.py` implemented
-- [ ] `src/train.py` implemented
-- [ ] Model training script runs successfully
-- [ ] Evaluation metrics are printed
-- [ ] Trained model is saved to `models/bank_marketing_baseline.pkl`
-- [ ] Git commit completed
-
-Example Git commit:
-
-```bash
-git add .
-git commit -m "Add sklearn baseline for bank marketing classification"
-```
-
----
-
 # Day 2: Build a FastAPI Inference API
 
 ## Goal
@@ -311,8 +285,6 @@ Therefore, `zip(class_labels, probability)` is used to correctly match each prob
 
 The purpose of `app.py` is to expose the model through FastAPI.
 
-Recommended version:
-
 ```python
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -328,22 +300,7 @@ app = FastAPI(
 
 
 class BankMarketingRequest(BaseModel):
-    age: int
-    job: str
-    marital: str
-    education: str
-    default: str
-    balance: int
-    housing: str
-    loan: str
-    contact: str
-    day_of_week: str
-    month: str
-    duration: int
-    campaign: int
-    pdays: int
-    previous: int
-    poutcome: str
+    features: Dict[str, any]
 
 
 model = load_model()
@@ -594,7 +551,7 @@ The default threshold of 0.5 achieved an F1 score of 0.5685. After evaluating mu
 
 This suggests that lowering the threshold improves recall and overall F1, which is useful in a marketing scenario where identifying more potential subscribers can be valuable.
 
-# Day 4: Build a Docker file
+# Day 4: Test and Build a Docker file
 
 ## Testing
 
@@ -643,3 +600,119 @@ http://127.0.0.1:8000/docs
 The Docker command maps your local port `8000` to the container's port `8000`.
 
 
+# Day 5: GCP Run
+
+## Cloud Deployment
+
+This project has been deployed to Google Cloud Run.
+
+### Deployment Information
+
+- GCP Project: `xianfei-bank-ml`
+- Service Name: `bank-marketing-api`
+- Region: `us-central1`
+- Deployment URL:  
+  `https://bank-marketing-api-1007024472238.us-central1.run.app/`
+
+---
+
+### Test the Deployed API
+
+Open the FastAPI documentation:
+
+```text
+https://bank-marketing-api-1007024472238.us-central1.run.app/docs
+```
+
+Health check endpoint:
+
+```text
+GET /health
+```
+
+Example response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+Prediction endpoint:
+
+```text
+POST /predict
+```
+
+Example request:
+
+```json
+{
+  "features": {
+    "age": 35,
+    "job": "management",
+    "marital": "married",
+    "education": "tertiary",
+    "default": "no",
+    "balance": 1200,
+    "housing": "yes",
+    "loan": "no",
+    "contact": "cellular",
+    "day": 15,
+    "month": "may",
+    "duration": 180,
+    "campaign": 2,
+    "pdays": -1,
+    "previous": 0,
+    "poutcome": "unknown"
+  }
+}
+```
+
+Example response:
+
+```json
+{
+  "prediction": "no",
+  "probability": {
+    "no": 0.82,
+    "yes": 0.18
+  }
+}
+```
+
+The exact probability values may vary depending on the trained model.
+
+---
+
+### Deployment Steps
+
+The Docker image was built locally, pushed to Google Artifact Registry, and deployed to Cloud Run.
+
+Build the Docker image:
+
+```bash
+docker build -t bank-marketing-api .
+```
+
+Tag the image for Artifact Registry:
+
+```bash
+docker tag bank-marketing-api:latest us-central1-docker.pkg.dev/xianfei-bank-ml/ml-api-repo/bank-marketing-api:latest
+```
+
+Push the image:
+
+```bash
+docker push us-central1-docker.pkg.dev/xianfei-bank-ml/ml-api-repo/bank-marketing-api:latest
+```
+
+Deploy to Cloud Run:
+
+```bash
+gcloud run deploy bank-marketing-api \
+  --image us-central1-docker.pkg.dev/xianfei-bank-ml/ml-api-repo/bank-marketing-api:latest \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated
+```
