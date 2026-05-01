@@ -11,3 +11,6 @@ torch
 
 pytest
 httpx
+
+pymysql
+cryptography

@@ -658,7 +658,7 @@ Example request:
     "housing": "yes",
     "loan": "no",
     "contact": "cellular",
-    "day": 15,
+    "day_of_week": 15,
     "month": "may",
     "duration": 180,
     "campaign": 2,
@@ -716,3 +716,132 @@ gcloud run deploy bank-marketing-api \
   --region us-central1 \
   --allow-unauthenticated
 ```
+
+
+# Day 6 MySQL
+
+## Database Integration
+
+This project integrates a MySQL database to store prediction request logs.
+
+The database is used to record each prediction made through the `/predict` endpoint, including the input features, prediction result, predicted probabilities, and request timestamp.
+
+### MySQL Setup
+
+A MySQL database is started using Docker:
+
+```bash
+docker run --name bank-mysql \
+  -e MYSQL_ROOT_PASSWORD=password \
+  -e MYSQL_DATABASE=bank_ml \
+  -p 3306:3306 \
+  -d mysql:8
+```
+
+In this setup:
+
+- `bank-mysql` is the Docker container name
+- `bank_ml` is the MySQL database name
+- `3306` is the MySQL port exposed to the local machine
+
+### Database Table
+
+The project creates a table called `prediction_logs`:
+
+```sql
+CREATE TABLE IF NOT EXISTS prediction_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    input_features JSON,
+    prediction VARCHAR(10),
+    prob_no FLOAT,
+    prob_yes FLOAT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+This table stores:
+
+- the original input features
+- the model prediction
+- the probability of class `no`
+- the probability of class `yes`
+- the prediction timestamp
+
+### Python Database Connection
+
+The API connects to MySQL using `pymysql`.
+
+Additional dependencies:
+
+```txt
+pymysql
+cryptography
+```
+
+`cryptography` is required because MySQL 8 may use `caching_sha2_password` authentication.
+
+### Prediction Logging
+
+When a user calls:
+
+```text
+POST /predict
+```
+
+the API will:
+
+1. receive the input features
+2. run the trained sklearn model
+3. return the prediction result
+4. insert the prediction record into MySQL
+
+### View Recent Prediction Logs
+
+The project also provides a `/logs` endpoint:
+
+```text
+GET /logs
+```
+
+Example:
+
+```text
+http://127.0.0.1:8000/logs
+```
+
+You can also specify the number of records:
+
+```text
+http://127.0.0.1:8000/logs?limit=5
+```
+
+This returns the most recent prediction logs from the database.
+
+### Query Logs Manually
+
+You can also inspect the database directly:
+
+```bash
+docker exec -it bank-mysql mysql -uroot -p
+```
+
+Then run:
+
+```sql
+USE bank_ml;
+
+SELECT id, prediction, prob_no, prob_yes, created_at
+FROM prediction_logs
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+### Important Note
+
+This database integration is currently designed for local development:
+
+- FastAPI runs locally with `uvicorn`
+- MySQL runs in a Docker container
+- The API connects to MySQL using `host="localhost"`
+
+If deploying this database-enabled version to Google Cloud Run, the local Docker MySQL database will not be accessible. A cloud database such as Cloud SQL would be needed for production deployment.
